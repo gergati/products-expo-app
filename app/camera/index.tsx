@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
 import { Alert, Button, Image, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { router } from 'expo-router';
 
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library'
+import * as ImagePicker from 'expo-image-picker'
 
 import { ThemedText } from '@/presentation/theme/components/ThemedText';
 import { useThemeColor } from '@/presentation/theme/hooks/useThemeColor';
@@ -107,6 +108,23 @@ export default function CameraScreen() {
     );
   }
 
+  const onPickerImages = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.5,
+      aspect: [4, 3],
+      // allowsEditing: true,
+      allowsMultipleSelection: true,
+      selectionLimit: 5
+    })
+    if (result.canceled) return;
+
+    result.assets.forEach(asset => {
+      addSelectedImage(asset.uri)
+    })
+    router.dismiss()
+  }
+
 
   return (
     <View style={styles.container}>
@@ -115,7 +133,7 @@ export default function CameraScreen() {
 
         <FlipCameraButton onPress={toggleCameraFacing} />
 
-        <GalleryButton />
+        <GalleryButton onPress={onPickerImages} />
         <ReturnCancelButton onPress={onReturnCancel} />
       </CameraView>
     </View>
@@ -193,6 +211,7 @@ const RetakeImageButton = ({ onPress = () => { } }) => {
     </TouchableOpacity>
   )
 }
+
 
 const styles = StyleSheet.create({
   container: {
