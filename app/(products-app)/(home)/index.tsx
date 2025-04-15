@@ -1,4 +1,4 @@
-import { FAB } from '@/presentation/products/components/FAB';
+import { FAB } from '@/presentation/theme/components/FAB';
 import ProductList from '@/presentation/products/components/ProductList';
 import { useProducts } from '@/presentation/products/hooks/useProducts';
 import { router } from 'expo-router';

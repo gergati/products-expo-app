@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
 import { ScrollView, KeyboardAvoidingView, Platform, View, ActivityIndicator } from 'react-native'
-import { Redirect, useLocalSearchParams, useNavigation } from 'expo-router';
+import { Redirect, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Formik } from 'formik';
-import { Ionicons } from '@expo/vector-icons';
 
-import ThemedButtonGroup from '@/presentation/products/components/ThemedButtonGroup';
+import ThemedButtonGroup from '@/presentation/theme/components/ThemedButtonGroup';
 import ThemedButton from '@/presentation/theme/components/ThemedButton';
 import ThemedTextInput from '@/presentation/theme/components/ThemedTextInput';
 import { ThemedView } from '@/presentation/theme/components/ThemedView';
@@ -12,18 +11,31 @@ import { ThemedView } from '@/presentation/theme/components/ThemedView';
 import { Size } from '@/core/products/interfaces/product.interface';
 import ProductImages from '@/presentation/products/components/ProductImages';
 import { useProduct } from '@/presentation/products/hooks/useProduct';
+import MenuIconButton from '@/presentation/theme/components/MenuIconButton';
+import { useCameraStore } from '@/presentation/store/useCameraStore';
 
 const ProductScreen = () => {
 
+    const { selectedImages, clearImages } = useCameraStore()
+
     const { id } = useLocalSearchParams()
     const navigation = useNavigation()
-    
+
     const { productQuery, productMutation } = useProduct(`${id}`)
 
     useEffect(() => {
+        return () => {
+            clearImages()
+        }
+    }, [])
+
+
+    useEffect(() => {
         navigation.setOptions({
-            headerRight: () => (<Ionicons name='camera-outline' size={25} />
-            )
+            headerRight: () => <MenuIconButton
+                onPress={() => router.push('/camera')}
+                icon='camera-outline'
+            />
         })
     }, [])
 
@@ -62,7 +74,7 @@ const ProductScreen = () => {
                     >
                         <ScrollView>
                             {/* Product Images */}
-                            <ProductImages images={values.images} />
+                            <ProductImages images={[...product.images, ...selectedImages]} />
                             <ThemedView
                                 style={{ marginHorizontal: 10, marginTop: 20 }}
                             >
