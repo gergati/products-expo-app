@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ScrollView, KeyboardAvoidingView, Platform, View, ActivityIndicator } from 'react-native'
+import { ScrollView, KeyboardAvoidingView, Platform, View, ActivityIndicator, RefreshControl } from 'react-native'
 import { Redirect, router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Formik } from 'formik';
 
@@ -65,14 +65,26 @@ const ProductScreen = () => {
     return (
         <Formik
             initialValues={product}
-            onSubmit={productMutation.mutate}
+            onSubmit={(productLike) => productMutation.mutate({
+                ...productLike,
+                images: [...productLike.images, ...selectedImages]
+            })}
         >
             {
                 ({ values, handleSubmit, handleChange, setFieldValue }) => (
                     <KeyboardAvoidingView
                         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     >
-                        <ScrollView>
+                        <ScrollView
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={productQuery.isFetching}
+                                    onRefresh={async () => {
+                                        await productQuery.refetch()
+                                    }}
+                                />
+                            }
+                        >
                             {/* Product Images */}
                             <ProductImages images={[...product.images, ...selectedImages]} />
                             <ThemedView
